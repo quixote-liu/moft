@@ -2,19 +2,29 @@ package main
 
 import (
 	"log"
+	"moft/database"
 	"moft/handler"
-	"moft/model"
 	"net"
 	"net/http"
+
+	"github.com/quixote-liu/config"
 )
+
+var conf = config.CONF()
 
 func main() {
 	// parse configuration.
-	if err := model.CONF.LoadConfiguration("./config.conf"); err != nil {
+	if err := conf.LoadConfiguration("./config.conf"); err != nil {
 		log.Printf("parse configuration failed: %v", err)
 		return
 	}
-	conf := model.CONF
+
+	// init database.
+	_, err := database.InitDatabase()
+	if err != nil {
+		log.Printf("init database failed: %v", err)
+		return
+	}
 
 	// register routers.
 	http.HandleFunc("/api/v1/file/receive", handler.ReceiveFile)
