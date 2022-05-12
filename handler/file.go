@@ -35,7 +35,7 @@ func ReceiveFile(w http.ResponseWriter, r *http.Request) {
 	// read file content to buffer.
 	reader := bufio.NewReader(f)
 
-	fileName := makeFileName(fh.Filename)
+	fileName := absoluteFileName(fh.Filename)
 
 	// create file.
 	file, err := os.Create(fileName)
@@ -56,7 +56,7 @@ func ReceiveFile(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 }
 
-func makeFileName(fileName string) string {
+func absoluteFileName(fileName string) string {
 	ext := filepath.Ext(fileName)
 	fileName = strings.TrimSuffix(fileName, ext)
 
