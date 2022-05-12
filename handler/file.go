@@ -32,12 +32,10 @@ func ReceiveFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer f.Close()
-
-	// read file content to scan.
+	// read file content to buffer.
 	reader := bufio.NewReader(f)
 
-	fileName := fh.Filename + "_" + time.Now().Format(time.RFC3339)
-	fileName = makeFileName(fileName)
+	fileName := makeFileName(fh.Filename)
 
 	// create file.
 	file, err := os.Create(fileName)
@@ -54,13 +52,19 @@ func ReceiveFile(w http.ResponseWriter, r *http.Request) {
 		util.ResponseJSONErr(w, http.StatusInternalServerError, nil)
 		return
 	}
+
+	w.WriteHeader(200)
 }
 
 func makeFileName(fileName string) string {
-	dir := model.CONF.GetString("file", "path")
+	ext := filepath.Ext(fileName)
+	fileName = strings.TrimSuffix(fileName, ext)
+
+	name := fileName + "_" + time.Now().Format(time.RFC3339) + ext
+	dir := model.DirFile
 	dir = filepath.Clean(dir)
 	if !strings.HasPrefix(dir, "/") {
 		dir += "/"
 	}
-	return dir + fileName
+	return dir + name
 }
