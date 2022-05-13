@@ -45,6 +45,9 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: validate user email
+	// TODO: validate email captcha
+
 	// create user.
 	if err := model.CreateUser(h.db, &u); err != nil {
 		log.Printf("create user failed: %v", err)
@@ -68,16 +71,79 @@ func (h *UserHandler) validateUser(user model.User) error {
 	if user.UserName == "" {
 		return fmt.Errorf("missing user name, please retype")
 	}
+	if len(user.UserName) < 6 {
+		return fmt.Errorf("the user name length must more than 6, please retype")
+	}
 	if user.Email == "" {
 		return fmt.Errorf("missing user email, please retype")
 	}
 	if user.Password == "" {
 		return fmt.Errorf("missing user password, please retype")
 	}
+	if len(user.Password) < 6 {
+		return fmt.Errorf("the password length must more than 6, please retype")
+	}
 
 	_, err := model.FindUserByName(h.db, user.UserName)
-	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return fmt.Errorf("user name is exist, please retype")
+	if err == nil {
+		return fmt.Errorf("the user name is exist, please retype")
 	}
-	return nil
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	}
+	log.Printf("find user from database by name %s failed: %v", user.UserName, err)
+	return fmt.Errorf("system internal error, register user failed")
+}
+
+func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
+	var user struct {
+		UserName string `json:"user_name"`
+		Password string `json:"password"`
+	}
+	if err := util.BindingJSON(r, &user); err != nil {
+		util.ResponseJSONErr(w, http.StatusNotFound, model.H{
+			"error":   "the request body message error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// find user.
+	uu, err := model.ListUser(h.db, map[string]interface{}{
+		"user_name": user.UserName,
+		"password":  user.Password,
+	})
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		util.ResponseJSONErr(w, http.StatusBadRequest, model.H{
+			"error": "user name or password error",
+		})
+		return
+	} else if err != nil {
+		log.Printf("find user by user name and password failed: %v", err)
+		util.Status(w, http.StatusInternalServerError)
+		return
+	} else if len(uu) > 1 {
+		log.Printf("[system internal error]: there are multiple identical accounts")
+		util.ResponseJSONErr(w, http.StatusBadRequest, model.H{
+			"error": "the account is abnormal. Please contact the administrator",
+		})
+		return
+	}
+
+	u := uu[0]
+
+	// build session.
+	sess := model.NewSession(r)
+	sess.SetValues(map[string]interface{}{
+		"user_name": u.UserName,
+		"user_id":   u.ID,
+	})
+	if err := sess.Save(w, r); err != nil {
+		util.ResponseJSONErr(w, http.StatusInternalServerError, model.H{
+			"error": fmt.Sprintf("build session failed: %v", err),
+		})
+		return
+	}
+
+	return
 }

@@ -14,7 +14,7 @@ type User struct {
 	UserName  string `json:"user_name"`
 	Email     string `json:"email"`
 	Password  string `json:"password"`
-	Role      string
+	Role      string `json:"role"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -47,5 +47,11 @@ func FindUserByName(db *gorm.DB, name string) (User, error) {
 		IgnoreRecordNotFoundError: true,
 	})
 	err := db.Session(&gorm.Session{Logger: logger}).Where("user_name = ?", name).First(&u).Error
+	return u, err
+}
+
+func FindUser(db *gorm.DB, id string) (User, error) {
+	u := User{}
+	err := db.Where("id = ?", id).First(&u).Error
 	return u, err
 }

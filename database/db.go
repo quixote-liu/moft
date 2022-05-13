@@ -21,11 +21,12 @@ func InitDatabase() (*gorm.DB, error) {
 	case "mysql":
 		dsn := mysqlOpts().dsn()
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-		if err != nil {
-			return nil, err
-		}
 	default:
-		return nil, fmt.Errorf("the database type %s does not support", dbType)
+		err = fmt.Errorf("the database type %s does not support", dbType)
+	}
+
+	if err != nil {
+		return nil, err
 	}
 
 	return db, nil

@@ -26,6 +26,18 @@ func (s *Session) SetValues(values map[string]interface{}) {
 	}
 }
 
+func (s *Session) GetString(key string) string {
+	vv, ok := s.Values[key]
+	if !ok {
+		return ""
+	}
+	v, ok := vv.(string)
+	if !ok {
+		return ""
+	}
+	return v
+}
+
 func (s *Session) Save(w http.ResponseWriter, r *http.Request) error {
 	return s.Session.Save(r, w)
 }
