@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -24,5 +25,8 @@ func ResponseJSONErr(w http.ResponseWriter, code int, msg interface{}) {
 }
 
 func BindingJSON(r *http.Request, v interface{}) error {
+	if v == nil {
+		return fmt.Errorf("the binding value is nil")
+	}
 	return json.NewDecoder(r.Body).Decode(v)
 }

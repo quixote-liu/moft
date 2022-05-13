@@ -18,11 +18,12 @@ func (opts mysqlOptions) dsn() string {
 }
 
 func mysqlOpts() mysqlOptions {
+	group := "mysql"
 	return mysqlOptions{
-		username: conf.GetString("database", "username"),
-		password: conf.GetString("database", "password"),
-		port:     conf.GetString("database", "port"),
-		host:     conf.GetString("database", "host"),
-		dbname:   conf.GetString("database", "dbname"),
+		username: conf.GetString(group, "username"),
+		password: conf.GetString(group, "password"),
+		port:     conf.GetString(group, "port"),
+		host:     conf.GetString(group, "host"),
+		dbname:   conf.GetString(group, "dbname"),
 	}
 }

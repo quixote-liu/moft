@@ -28,5 +28,11 @@ func DeleteUser(db *gorm.DB, id string) error {
 }
 
 func UpdateUser(db *gorm.DB, u *User) error {
-	
+	return db.Model(&User{}).Updates(u).Error
+}
+
+func FindUser(db *gorm.DB, filters map[string]interface{}) ([]User, error) {
+	uu := []User{}
+	err := db.Where(filters).Find(&uu).Error
+	return uu, err
 }

@@ -20,9 +20,13 @@ func main() {
 	}
 
 	// init database.
-	_, err := database.InitDatabase()
+	db, err := database.InitDatabase()
 	if err != nil {
 		log.Printf("init database failed: %v", err)
+		return
+	}
+	if err := database.MigrateTables(db); err != nil {
+		log.Printf("migrate databases tables failed: %v", err)
 		return
 	}
 
