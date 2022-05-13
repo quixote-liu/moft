@@ -30,9 +30,12 @@ func main() {
 		log.Printf("migrate databases tables failed: %v", err)
 		return
 	}
+<<<<<<< HEAD
 
 	// create server mux.
 	mux := NewServerMux()
+=======
+>>>>>>> a78cf62610e1e3ce55ab1ba6ff6cf583beeb356b
 
 	// register routers.
 	mux.HandleFunc("/api/v1/file/receivce", handler.ReceiveFile)

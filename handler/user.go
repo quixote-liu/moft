@@ -21,6 +21,7 @@ func NewUserHandler(db *gorm.DB) *UserHandler {
 
 func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var user struct {
+<<<<<<< HEAD
 		UserName string `json:"user_name"`
 		Password string `json:"password"`
 		Email    string `json:"email"`
@@ -80,4 +81,12 @@ func (h *UserHandler) validateUser(user model.User) error {
 		return fmt.Errorf("user name is exist, please retype")
 	}
 	return nil
+=======
+		ID       string `json:"id"`
+		Name     string `json:"name"`
+		Password string `json:"password"`
+		Email    string `json:"email"`
+		
+	}
+>>>>>>> a78cf62610e1e3ce55ab1ba6ff6cf583beeb356b
 }
