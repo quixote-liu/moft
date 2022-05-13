@@ -34,7 +34,6 @@ func UpdateUser(db *gorm.DB, u *User) error {
 	return db.Model(&User{}).Updates(u).Error
 }
 
-<<<<<<< HEAD
 func ListUser(db *gorm.DB, filters map[string]interface{}) ([]User, error) {
 	uu := []User{}
 	err := db.Where(filters).Find(&uu).Error
@@ -49,10 +48,4 @@ func FindUserByName(db *gorm.DB, name string) (User, error) {
 	})
 	err := db.Session(&gorm.Session{Logger: logger}).Where("user_name = ?", name).First(&u).Error
 	return u, err
-=======
-func FindUser(db *gorm.DB, filters map[string]interface{}) ([]User, error) {
-	uu := []User{}
-	err := db.Where(filters).Find(&uu).Error
-	return uu, err
->>>>>>> a78cf62610e1e3ce55ab1ba6ff6cf583beeb356b
 }
