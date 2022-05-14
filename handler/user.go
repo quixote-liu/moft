@@ -113,7 +113,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		"user_name": user.UserName,
 		"password":  user.Password,
 	})
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, gorm.ErrRecordNotFound) || len(uu) == 0 {
 		util.ResponseJSONErr(w, http.StatusBadRequest, model.H{
 			"error": "user name or password error",
 		})
@@ -125,7 +125,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	} else if len(uu) > 1 {
 		log.Printf("[system internal error]: there are multiple identical accounts")
 		util.ResponseJSONErr(w, http.StatusBadRequest, model.H{
-			"error": "the account is abnormal. Please contact the administrator",
+			"error": "this account is abnormal. Please contact the administrator",
 		})
 		return
 	}
@@ -145,5 +145,13 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	return
+	// response user message.
+	util.ResponseJSONErr(w, http.StatusOK, model.H{
+		"message": "login success",
+		"user": model.H{
+			"user_name": u.UserName,
+			"email":     u.Email,
+			"role":      u.Role,
+		},
+	})
 }
