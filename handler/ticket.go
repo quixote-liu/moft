@@ -34,7 +34,15 @@ func (h *TicketHandler) CreateTicket(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ticket := model.Ticket{}
+	filePathsChan := make(chan []string, 1)
+	photoPathsChan := make(chan []string, 1)
 
 	// get ticket message.
 	ticket.Message = r.PostFormValue("message")
+
+	// get files.
+	go func() {
+		paths := []string{}
+		r.PostForm
+	}()
 }
