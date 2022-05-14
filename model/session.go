@@ -11,13 +11,21 @@ var store = sessions.NewCookieStore([]byte(util.RandomInt32()))
 
 type Session struct {
 	*sessions.Session
+	err error
 }
 
-func NewSession(r *http.Request) *Session {
-	sess, _ := store.Get(r, "Moft-Session")
+func NewSession(r *http.Request) (*Session, error) {
+	sess, err := store.Get(r, "Moft-Session")
+	if err != nil {
+		return nil, err
+	}
 	return &Session{
 		Session: sess,
-	}
+	}, nil
+}
+
+func (s *Session) Error() error {
+	return s.err
 }
 
 func (s *Session) SetValues(values map[string]interface{}) {

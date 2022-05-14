@@ -13,3 +13,11 @@ const (
 	RoleAdmin  Role = "role_admin"
 	RoleMember Role = "role_member"
 )
+
+type TicketStatus string
+
+const (
+	TicketStatusPending    TicketStatus = "pending"
+	TicketStatusProcessing TicketStatus = "processing"
+	TicketStatusCompleted  TicketStatus = "completed"
+)

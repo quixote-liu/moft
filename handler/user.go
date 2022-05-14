@@ -133,7 +133,13 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	u := uu[0]
 
 	// build session.
-	sess := model.NewSession(r)
+	sess, err := model.NewSession(r)
+	if err != nil {
+		util.ResponseJSONErr(w, http.StatusInternalServerError, model.H{
+			"error": fmt.Sprintf("build session failed: %v", err),
+		})
+		return
+	}
 	sess.SetValues(map[string]interface{}{
 		"user_name": u.UserName,
 		"user_id":   u.ID,

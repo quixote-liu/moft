@@ -10,13 +10,14 @@ import (
 )
 
 type User struct {
-	ID        string `json:"id"`
-	UserName  string `json:"user_name"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-	Role      string `json:"role"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        string    `json:"id"`
+	UserName  string    `json:"user_name"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	Role      string    `json:"role"`
+	TicketIDs []string  `json:"ticket_ids"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func CreateUser(db *gorm.DB, u *User) error {
