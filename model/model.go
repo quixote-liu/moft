@@ -21,3 +21,10 @@ const (
 	TicketStatusProcessing TicketStatus = "processing"
 	TicketStatusCompleted  TicketStatus = "completed"
 )
+
+type FileType string
+
+const (
+	FileTypeFile  FileType = "file"
+	FileTypePhoto FileType = "photo"
+)

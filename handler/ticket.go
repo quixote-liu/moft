@@ -48,8 +48,20 @@ func (h *TicketHandler) CreateTicket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// create ticket.
+	ticket := model.Ticket{
+		UserID:  userID,
+		Message: r.PostFormValue("message"),
+	}
+	if err := model.CreateTicket(h.db, ticket); err != nil {
+		log.Printf("insert ticket into database failed: %v", err)
+		util.Status(w, http.StatusInternalServerError)
+		return
+	}
+
 	type file struct {
-		ftype string
+		name  string
+		ftype model.FileType
 		path  string
 		buf   *bufio.Reader
 	}
@@ -67,15 +79,15 @@ func (h *TicketHandler) CreateTicket(w http.ResponseWriter, r *http.Request) {
 		var f multipart.File
 		var fh *multipart.FileHeader
 		var err error
-		var ftype string
+		var ftype model.FileType
 
 		switch {
 		case strings.HasPrefix(k, "file_"):
 			f, fh, err = r.FormFile(k)
-			ftype = "file"
+			ftype = model.FileTypeFile
 		case strings.HasPrefix(k, "photo_"):
 			f, fh, err = r.FormFile(k)
-			ftype = "photo"
+			ftype = model.FileTypePhoto
 		default:
 			continue
 		}
@@ -85,21 +97,28 @@ func (h *TicketHandler) CreateTicket(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
+		defer f.Close()
 
 		files = append(files, file{
 			ftype: ftype,
+			name:  fh.Filename,
 			path:  absoluteFileName(fh.Filename),
 			buf:   bufio.NewReader(f),
 		})
 	}
 
-	ticket := model.Ticket{
-		UserID:     userID,
-		PhotoPaths: make([]string, 0),
-		FilePaths:  make([]string, 0),
-		Message:    r.PostFormValue("message"),
-	}
 	for _, f := range files {
+		a := model.Appendix{
+			UserID: userID,
+			Type:   model.FileTypeFile,
+			Name:   f.name,
+			Path:   f.path,
+		}
+		if err := model.CreateAppendix(h.db, a); err != nil {
+			log.Printf("insert appendix into database failed: %v", err)
+			continue
+		}
+
 		ff, err := os.Create(f.path)
 		if err != nil {
 			log.Printf("create file with path %s failed: %v", f.path, err)
@@ -109,13 +128,6 @@ func (h *TicketHandler) CreateTicket(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Printf("write file content to target file failed: %v", err)
 			continue
-		}
-
-		switch f.ftype {
-		case "file":
-			ticket.FilePaths = append(ticket.FilePaths, f.path)
-		case "photo":
-			ticket.PhotoPaths = append(ticket.PhotoPaths, f.path)
 		}
 	}
 

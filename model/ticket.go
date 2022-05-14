@@ -6,12 +6,10 @@ import (
 )
 
 type Ticket struct {
-	ID         string
-	UserID     string
-	PhotoPaths []string
-	FilePaths  []string
-	Message    string `gorm:"type:TEXT"`
-	Status     TicketStatus
+	ID      string
+	UserID  string
+	Message string `gorm:"type:TEXT"`
+	Status  TicketStatus
 }
 
 func CreateTicket(db *gorm.DB, t Ticket) error {

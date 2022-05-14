@@ -26,7 +26,7 @@ func JSONResponse(w http.ResponseWriter, code int, msg interface{}) {
 
 func Status(w http.ResponseWriter, code int) {
 	w.WriteHeader(code)
-	return
+	w.Write(nil)
 }
 
 func JSONBinding(r *http.Request, v interface{}) error {
