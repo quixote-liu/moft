@@ -25,8 +25,8 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 		Email    string `json:"email"`
 	}
-	if err := util.BindingJSON(r, &user); err != nil {
-		util.ResponseJSONErr(w, http.StatusBadRequest, model.H{
+	if err := util.JSONBinding(r, &user); err != nil {
+		util.JSONResponse(w, http.StatusBadRequest, model.H{
 			"error": "your register user error",
 		})
 		return
@@ -39,7 +39,7 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		Email:    user.Email,
 	}
 	if err := h.validateUser(u); err != nil {
-		util.ResponseJSONErr(w, http.StatusBadRequest, model.H{
+		util.JSONResponse(w, http.StatusBadRequest, model.H{
 			"error": err.Error(),
 		})
 		return
@@ -61,7 +61,7 @@ func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	util.ResponseJSONErr(w, http.StatusCreated, model.H{
+	util.JSONResponse(w, http.StatusCreated, model.H{
 		"user":    uu,
 		"message": "create user success",
 	})
@@ -100,8 +100,8 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		UserName string `json:"user_name"`
 		Password string `json:"password"`
 	}
-	if err := util.BindingJSON(r, &user); err != nil {
-		util.ResponseJSONErr(w, http.StatusNotFound, model.H{
+	if err := util.JSONBinding(r, &user); err != nil {
+		util.JSONResponse(w, http.StatusNotFound, model.H{
 			"error":   "the request body message error",
 			"message": err.Error(),
 		})
@@ -114,7 +114,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		"password":  user.Password,
 	})
 	if errors.Is(err, gorm.ErrRecordNotFound) || len(uu) == 0 {
-		util.ResponseJSONErr(w, http.StatusBadRequest, model.H{
+		util.JSONResponse(w, http.StatusBadRequest, model.H{
 			"error": "user name or password error",
 		})
 		return
@@ -124,7 +124,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	} else if len(uu) > 1 {
 		log.Printf("[system internal error]: there are multiple identical accounts")
-		util.ResponseJSONErr(w, http.StatusBadRequest, model.H{
+		util.JSONResponse(w, http.StatusBadRequest, model.H{
 			"error": "this account is abnormal. Please contact the administrator",
 		})
 		return
@@ -135,7 +135,7 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// build session.
 	sess, err := model.NewSession(r)
 	if err != nil {
-		util.ResponseJSONErr(w, http.StatusInternalServerError, model.H{
+		util.JSONResponse(w, http.StatusInternalServerError, model.H{
 			"error": fmt.Sprintf("build session failed: %v", err),
 		})
 		return
@@ -145,14 +145,14 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		"user_id":   u.ID,
 	})
 	if err := sess.Save(w, r); err != nil {
-		util.ResponseJSONErr(w, http.StatusInternalServerError, model.H{
+		util.JSONResponse(w, http.StatusInternalServerError, model.H{
 			"error": fmt.Sprintf("build session failed: %v", err),
 		})
 		return
 	}
 
 	// response user message.
-	util.ResponseJSONErr(w, http.StatusOK, model.H{
+	util.JSONResponse(w, http.StatusOK, model.H{
 		"message": "login success",
 		"user": model.H{
 			"user_name": u.UserName,

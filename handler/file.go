@@ -8,14 +8,11 @@ import (
 	"moft/util"
 	"net/http"
 	"os"
-	"path/filepath"
-	"strings"
-	"time"
 )
 
 func ReceiveFile(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		util.ResponseJSONErr(w, http.StatusBadRequest, model.H{
+		util.JSONResponse(w, http.StatusBadRequest, model.H{
 			"error":   err.Error(),
 			"message": "parse request form failed",
 		})
@@ -25,7 +22,7 @@ func ReceiveFile(w http.ResponseWriter, r *http.Request) {
 	// read file.
 	f, fh, err := r.FormFile("file")
 	if err != nil {
-		util.ResponseJSONErr(w, http.StatusBadRequest, model.H{
+		util.JSONResponse(w, http.StatusBadRequest, model.H{
 			"error":   err.Error(),
 			"message": "get form file failed",
 		})
@@ -41,7 +38,7 @@ func ReceiveFile(w http.ResponseWriter, r *http.Request) {
 	file, err := os.Create(fileName)
 	if err != nil {
 		log.Printf("create file(%s) failed: %v", fileName, err)
-		util.ResponseJSONErr(w, http.StatusInternalServerError, nil)
+		util.JSONResponse(w, http.StatusInternalServerError, nil)
 		return
 	}
 
@@ -49,22 +46,9 @@ func ReceiveFile(w http.ResponseWriter, r *http.Request) {
 	_, err = io.Copy(file, reader)
 	if err != nil {
 		log.Printf("write data to file(%s) failed: %v", fileName, err)
-		util.ResponseJSONErr(w, http.StatusInternalServerError, nil)
+		util.JSONResponse(w, http.StatusInternalServerError, nil)
 		return
 	}
 
 	w.WriteHeader(200)
-}
-
-func absoluteFileName(fileName string) string {
-	ext := filepath.Ext(fileName)
-	fileName = strings.TrimSuffix(fileName, ext)
-
-	name := fileName + "_" + time.Now().Format(time.RFC3339) + ext
-	dir := model.DirFile
-	dir = filepath.Clean(dir)
-	if !strings.HasPrefix(dir, "/") {
-		dir += "/"
-	}
-	return dir + name
 }

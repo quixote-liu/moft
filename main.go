@@ -36,11 +36,17 @@ func main() {
 	// register routers.
 	mux.HandleFunc("/api/v1/file/receivce", handler.ReceiveFile)
 
-	// register users.
+	// users routers.
 	userHandler := handler.NewUserHandler(db)
 	{
 		mux.POST("/api/v1/user/register", userHandler.Register)
 		mux.POST("/api/v1/user/login", userHandler.Login)
+	}
+
+	// ticket routers.
+	ticketHandler := handler.NewTicketHandler(db)
+	{
+		mux.POST("/api/v1/tickets", ticketHandler.CreateTicket)
 	}
 
 	host := conf.GetString("system", "host")

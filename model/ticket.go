@@ -7,6 +7,7 @@ import (
 
 type Ticket struct {
 	ID         string
+	UserID     string
 	PhotoPaths []string
 	FilePaths  []string
 	Message    string `gorm:"type:TEXT"`

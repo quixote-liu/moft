@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func ResponseJSONErr(w http.ResponseWriter, code int, msg interface{}) {
+func JSONResponse(w http.ResponseWriter, code int, msg interface{}) {
 	if msg == nil {
 		w.WriteHeader(code)
 		return
@@ -29,7 +29,7 @@ func Status(w http.ResponseWriter, code int) {
 	return
 }
 
-func BindingJSON(r *http.Request, v interface{}) error {
+func JSONBinding(r *http.Request, v interface{}) error {
 	if v == nil {
 		return fmt.Errorf("the binding value is nil")
 	}

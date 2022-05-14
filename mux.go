@@ -24,7 +24,7 @@ func (mux *ServerMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	method := r.Method
 	h := mux.findHandlerFunc(method, pattern)
 	if h == nil {
-		util.ResponseJSONErr(w, http.StatusNotFound, model.H{
+		util.JSONResponse(w, http.StatusNotFound, model.H{
 			"error":  "router not found",
 			"method": method,
 			"path":   pattern,
