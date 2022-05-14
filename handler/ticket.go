@@ -4,6 +4,7 @@ import (
 	"moft/model"
 	"moft/util"
 	"net/http"
+	"strings"
 
 	"gorm.io/gorm"
 )
@@ -34,15 +35,19 @@ func (h *TicketHandler) CreateTicket(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ticket := model.Ticket{}
-	filePathsChan := make(chan []string, 1)
-	photoPathsChan := make(chan []string, 1)
+	filePaths := make([]string, 0)
+	photoPaths := make([]string, 0)
 
 	// get ticket message.
 	ticket.Message = r.PostFormValue("message")
 
 	// get files.
-	go func() {
-		paths := []string{}
-		r.PostForm
-	}()
-}
+	for k, _ := range r.PostForm {
+		if strings.HasPrefix(k, "file_") {
+			file, fileHeader, err := r.FormFile(k)
+			if err != nil {
+				
+			}
+		}
+	}
+
